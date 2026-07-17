@@ -230,7 +230,7 @@ export default function Home() {
       </div>
 
       {/* Header */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-8 animate-fade-in-up">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tighter text-zinc-100 uppercase">
           ERIK'S MASTER PLAN
         </h1>
@@ -240,7 +240,7 @@ export default function Home() {
       </div>
 
       {/* Main CTA */}
-      <div className="glass rounded-3xl p-6 w-full mb-6 border border-white/10 relative overflow-hidden">
+      <div className="glass rounded-3xl p-6 w-full mb-6 border border-white/10 relative overflow-hidden animate-fade-in-up delay-75">
         <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-2xl -z-10" />
         
         <div className="flex items-center gap-3 mb-4">
@@ -262,7 +262,7 @@ export default function Home() {
       </div>
 
       {/* System Status */}
-      <div className="glass rounded-2xl p-4 w-full mb-6 grid grid-cols-2 gap-4">
+      <div className="glass rounded-2xl p-4 w-full mb-6 grid grid-cols-2 gap-4 animate-fade-in-up delay-100">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping" />
           <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute" />
@@ -275,7 +275,7 @@ export default function Home() {
       </div>
 
       {/* Recent History */}
-      <div className="w-full">
+      <div className="w-full animate-fade-in-up delay-150">
         <div className="flex justify-between items-center mb-3 px-1">
           <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
             <Clock className="w-4 h-4" />

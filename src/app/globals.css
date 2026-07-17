@@ -20,12 +20,15 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 12px; /* Sleeker, less rounded borders */
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow, border-color;
 }
 
 .glass-hover:hover {
-  background: #18181b;
-  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  background: #121214;
+  border-color: rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.05);
 }
 
 /* Light/Dark Theme Variable Definitions */
@@ -44,8 +47,10 @@ body {
 }
 
 [data-theme="light"] .glass-hover:hover {
-  background: #f4f4f0;
-  border-color: rgba(12, 12, 14, 0.15);
+  transform: translateY(-2px);
+  background: #fbfbfa;
+  border-color: rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(139, 92, 246, 0.05);
 }
 
 [data-theme="light"] .text-zinc-100 {
@@ -145,6 +150,68 @@ body {
   background-color: #eab308 !important;
   color: #000000 !important;
   border-color: #eab308;
+}
+
+/* Custom keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation utilities */
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  opacity: 0;
+  animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger delays */
+.delay-75 { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Micro transition adjustments */
+button, select, input, a {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 

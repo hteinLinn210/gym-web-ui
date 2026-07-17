@@ -437,7 +437,7 @@ export default function LogPage() {
   }
 
   return (
-    <div className="flex-grow flex flex-col p-4 max-w-lg mx-auto w-full pb-10">
+    <div className="flex-grow flex flex-col p-4 max-w-lg mx-auto w-full pb-10 animate-fade-in">
       {/* Top Bar */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
@@ -636,7 +636,7 @@ export default function LogPage() {
         /* Standard Logging Mode Form */
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Day Select & Datepicker */}
-          <div className="glass rounded-2xl p-5 border border-white/5 space-y-4">
+          <div className="glass rounded-2xl p-5 border border-white/5 space-y-4 animate-fade-in-up delay-75">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="min-w-0">
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">
@@ -677,7 +677,7 @@ export default function LogPage() {
           </div>
 
           {/* Exercises */}
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in-up delay-150">
             {exercises.map((ex, exIdx) => (
               <div key={ex.name} className="glass rounded-2xl p-5 border border-white/5 space-y-4">
                 <div className="border-b border-white/5 pb-3">
