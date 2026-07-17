@@ -151,12 +151,13 @@ export default function LogPage() {
       const setsData = Array.from({ length: ex.sets || 1 }, (_, i) => ({
         setNum: i + 1,
         reps: ex.reps ? (ex.reps.includes('-') ? ex.reps.split('-')[0] : ex.reps) : '10',
-        weight: ex.weight ? ex.weight.replace('kg', '') : '0'
+        weight: '0' // Default added weight to 0
       }));
       return {
         name: ex.name,
         sets: setsData,
-        duration: ex.duration || ''
+        duration: ex.duration || '',
+        initialWeight: ex.weight ? ex.weight.replace('kg', '') : '0'
       };
     });
     setExercises(initialized);
@@ -313,13 +314,20 @@ export default function LogPage() {
           status: 'completed'
         };
       }
+      
+      const baseWeight = parseFloat(ex.initialWeight) || 0;
+      
       return {
         name: ex.name,
-        sets: ex.sets.map((s: any) => ({
-          set: s.setNum,
-          reps: parseInt(s.reps) || 0,
-          weight: `${s.weight}kg`
-        }))
+        sets: ex.sets.map((s: any) => {
+          const addedWeight = parseFloat(s.weight) || 0;
+          const totalWeight = baseWeight + addedWeight;
+          return {
+            set: s.setNum,
+            reps: parseInt(s.reps) || 0,
+            weight: `${totalWeight}kg`
+          };
+        })
       };
     });
 
@@ -626,16 +634,36 @@ export default function LogPage() {
           <div className="space-y-4">
             {exercises.map((ex, exIdx) => (
               <div key={ex.name} className="glass rounded-2xl p-5 border border-white/5 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-bold text-zinc-100 text-sm">{ex.name}</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+                  <h3 className="font-bold text-zinc-100 text-sm leading-tight">{ex.name}</h3>
                   {!ex.duration && (
-                    <button
-                      type="button"
-                      onClick={() => addSet(exIdx)}
-                      className="flex items-center gap-1 text-[11px] font-semibold bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 px-2.5 py-1 rounded-lg transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" /> Add Set
-                    </button>
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                      {/* Initial Machine/Bar Base Weight */}
+                      <div className="flex items-center gap-1.5 bg-zinc-950/60 rounded-lg px-2 border border-white/5 py-1">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Base:</span>
+                        <input
+                          type="number"
+                          step="any"
+                          value={ex.initialWeight || '0'}
+                          onChange={(e) => {
+                            const updated = [...exercises];
+                            updated[exIdx].initialWeight = e.target.value;
+                            setExercises(updated);
+                          }}
+                          className="w-10 bg-transparent border-none text-zinc-200 text-xs focus:outline-none text-center font-bold"
+                          title="Base carriage/bar weight of this exercise/machine"
+                        />
+                        <span className="text-[9px] font-bold text-zinc-600">KG</span>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        onClick={() => addSet(exIdx)}
+                        className="flex items-center gap-1 text-[11px] font-semibold bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Set
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -679,14 +707,16 @@ export default function LogPage() {
                           </div>
 
                           <div className="flex items-center bg-zinc-950/60 rounded-lg px-2 border border-white/5">
+                            <span className="text-[10px] font-bold text-zinc-600 pl-1 pr-0.5">+</span>
                             <input
                               type="number"
                               step="any"
-                              placeholder="Weight"
+                              placeholder="Plates"
                               value={set.weight}
                               onChange={(e) => handleSetChange(exIdx, setIdx, 'weight', e.target.value)}
-                              className="w-full bg-transparent border-none text-zinc-200 text-xs py-1.5 focus:outline-none text-center"
+                              className="w-full bg-transparent border-none text-zinc-200 text-xs py-1.5 focus:outline-none text-center font-semibold"
                               required
+                              title="Weight added to base weight"
                             />
                             <span className="text-[10px] font-bold text-zinc-600 uppercase pr-1">KG</span>
                           </div>
