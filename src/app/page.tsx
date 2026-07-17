@@ -158,7 +158,8 @@ export default function Home() {
       const { error } = await supabase
         .from('workout_logs')
         .update({
-          metrics: JSON.stringify(payload)
+          metrics: JSON.stringify(payload),
+          timestamp: editedLog.timestamp
         })
         .eq('id', selectedLog.id);
 
@@ -171,13 +172,14 @@ export default function Home() {
         },
         body: JSON.stringify({
           day_split: selectedLog.day_split,
-          timestamp: selectedLog.timestamp,
+          timestamp: editedLog.timestamp,
           metrics: payload
         })
       });
 
       setSelectedLog({
         ...selectedLog,
+        timestamp: editedLog.timestamp,
         metrics: payload
       });
       setIsEditing(false);
@@ -410,6 +412,39 @@ export default function Home() {
               {activeTab === 'exercises' && (
                 isEditing && editedLog ? (
                   <div className="space-y-4">
+                    {/* Edit Workout Date */}
+                    <div className="bg-zinc-900/40 border border-white/10 p-4 rounded-2xl space-y-2">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Workout Date & Time</label>
+                      <input
+                        type="datetime-local"
+                        value={(() => {
+                          try {
+                            const dateObj = new Date(editedLog.timestamp);
+                            if (isNaN(dateObj.getTime())) return '';
+                            const offset = dateObj.getTimezoneOffset() * 60000;
+                            const localISODate = new Date(dateObj.getTime() - offset).toISOString();
+                            return localISODate.slice(0, 16);
+                          } catch (err) {
+                            return '';
+                          }
+                        })()}
+                        onChange={(e) => {
+                          const updated = { ...editedLog };
+                          try {
+                            const selectedDate = new Date(e.target.value);
+                            if (!isNaN(selectedDate.getTime())) {
+                              updated.timestamp = selectedDate.toISOString();
+                            }
+                          } catch (err) {
+                            // ignore malformed typing
+                          }
+                          setEditedLog(updated);
+                        }}
+                        className="w-full bg-zinc-950/60 border border-white/10 text-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-violet-500 font-mono"
+                        required
+                      />
+                    </div>
+
                     {editedLog.metrics.exercises?.map((ex, exIdx) => (
                       <div key={exIdx} className="bg-zinc-900/40 border border-white/10 p-4 rounded-2xl space-y-3">
                         <div className="flex justify-between items-center">
