@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  font-size: 120%; /* Scales all rem-based typography & layout up by 1.2x */
+}
+
 :root {
   --background: #000000; /* Pitch black for Neue Montreal dark specimen */
   --foreground: #f4f4f6; /* Off-white */
