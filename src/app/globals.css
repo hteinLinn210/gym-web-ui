@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b; /* Zinc 950 */
-  --foreground: #fafafa; /* Zinc 50 */
-  --card-bg: rgba(18, 18, 24, 0.65);
+  --background: #000000; /* Pitch black for Neue Montreal dark specimen */
+  --foreground: #f4f4f6; /* Off-white */
+  --card-bg: #09090b;    /* Zinc 950 */
   --card-border: rgba(255, 255, 255, 0.08);
 }
 
@@ -11,119 +11,140 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(120, 119, 198, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.06) 0px, transparent 50%);
-  background-attachment: fixed;
+  letter-spacing: -0.01em; /* Tight grotesque kerning */
   min-height: 100vh;
 }
 
-/* Glassmorphism utilities */
+/* Neue Montreal specimen border and layout styles */
 .glass {
   background: var(--card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--card-border);
+  border-radius: 12px; /* Sleeker, less rounded borders */
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-hover:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #18181b;
   border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Light/Dark Theme Variable Definitions */
 [data-theme="light"] {
-  --background: #fdfdfd;
-  --foreground: #09090b;
-  --card-bg: rgba(244, 244, 245, 0.75);
-  --card-border: rgba(9, 9, 11, 0.06);
-}
-
-[data-theme="light"] body {
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(120, 119, 198, 0.04) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.03) 0px, transparent 50%);
+  --background: #fafaf7;  /* Warm Neue Montreal museum cream */
+  --foreground: #0c0c0e;  /* Dark charcoal */
+  --card-bg: #ffffff;     /* Pure white */
+  --card-border: rgba(12, 12, 14, 0.08);
 }
 
 /* Light mode overrides for Tailwind utility colors */
 [data-theme="light"] .glass {
   background: var(--card-bg);
   border-color: var(--card-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01), 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .glass-hover:hover {
+  background: #f4f4f0;
+  border-color: rgba(12, 12, 14, 0.15);
 }
 
 [data-theme="light"] .text-zinc-100 {
-  color: #18181b !important;
+  color: #0c0c0e !important;
 }
 [data-theme="light"] .text-zinc-200 {
-  color: #27272a !important;
+  color: #1c1c1f !important;
 }
 [data-theme="light"] .text-zinc-300 {
-  color: #3f3f46 !important;
+  color: #2e2e33 !important;
 }
 [data-theme="light"] .text-zinc-400 {
-  color: #52525b !important;
+  color: #4b4b54 !important;
 }
 [data-theme="light"] .text-zinc-500 {
-  color: #71717a !important;
+  color: #6e6e7a !important;
 }
 [data-theme="light"] .text-zinc-600 {
-  color: #8c8c96 !important;
+  color: #8a8a99 !important;
 }
 [data-theme="light"] .text-white {
-  color: #09090b !important;
+  color: #0c0c0e !important;
 }
 
 [data-theme="light"] .bg-zinc-900 {
-  background-color: #f4f4f5 !important;
+  background-color: #f4f4f0 !important;
 }
 [data-theme="light"] .bg-zinc-950 {
-  background-color: #e4e4e7 !important;
+  background-color: #eaeae5 !important;
 }
 [data-theme="light"] .bg-zinc-900\/30 {
-  background-color: rgba(244, 244, 245, 0.6) !important;
+  background-color: rgba(244, 244, 240, 0.6) !important;
 }
 [data-theme="light"] .bg-zinc-900\/40 {
-  background-color: rgba(244, 244, 245, 0.75) !important;
+  background-color: rgba(244, 244, 240, 0.75) !important;
 }
 [data-theme="light"] .bg-zinc-900\/50 {
-  background-color: rgba(244, 244, 245, 0.7) !important;
+  background-color: rgba(244, 244, 240, 0.7) !important;
 }
 [data-theme="light"] .bg-zinc-950\/20 {
-  background-color: rgba(228, 228, 231, 0.4) !important;
+  background-color: rgba(234, 234, 229, 0.4) !important;
 }
 [data-theme="light"] .bg-zinc-950\/40 {
-  background-color: rgba(228, 228, 231, 0.6) !important;
+  background-color: rgba(234, 234, 229, 0.6) !important;
 }
 [data-theme="light"] .bg-zinc-950\/50 {
-  background-color: rgba(228, 228, 231, 0.7) !important;
+  background-color: rgba(234, 234, 229, 0.7) !important;
 }
 [data-theme="light"] .bg-zinc-950\/60 {
-  background-color: rgba(228, 228, 231, 0.8) !important;
+  background-color: rgba(234, 234, 229, 0.8) !important;
 }
 [data-theme="light"] .bg-black\/75 {
-  background-color: rgba(0, 0, 0, 0.3) !important;
+  background-color: rgba(0, 0, 0, 0.45) !important;
 }
 [data-theme="light"] .border-white\/5 {
-  border-color: rgba(9, 9, 11, 0.05) !important;
+  border-color: rgba(12, 12, 14, 0.05) !important;
 }
 [data-theme="light"] .border-white\/10 {
-  border-color: rgba(9, 9, 11, 0.08) !important;
+  border-color: rgba(12, 12, 14, 0.08) !important;
 }
 [data-theme="light"] .border-white\/20 {
-  border-color: rgba(9, 9, 11, 0.15) !important;
+  border-color: rgba(12, 12, 14, 0.15) !important;
 }
 
 [data-theme="light"] input, [data-theme="light"] select {
-  color: #18181b !important;
-  background-color: #f4f4f5 !important;
-  border-color: rgba(9, 9, 11, 0.1) !important;
+  color: #0c0c0e !important;
+  background-color: #f4f4f0 !important;
+  border-color: rgba(12, 12, 14, 0.1) !important;
 }
 [data-theme="light"] select option {
   background-color: #ffffff !important;
-  color: #18181b !important;
+  color: #0c0c0e !important;
 }
+
+/* Custom Neue Montreal Buttons & Accents overrides */
+.bg-gradient-to-r.from-violet-500.to-rose-500 {
+  background-image: none !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff;
+}
+
 [data-theme="light"] .bg-gradient-to-r.from-violet-500.to-rose-500 {
-  color: #ffffff !important; /* Preserve white text inside buttons */
+  background-image: none !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #000000;
 }
+
+.bg-gradient-to-r.from-violet-500.to-rose-500:hover {
+  background-color: #eab308 !important; /* Gold hover accent */
+  color: #000000 !important;
+  border-color: #eab308;
+}
+
+[data-theme="light"] .bg-gradient-to-r.from-violet-500.to-rose-500:hover {
+  background-color: #eab308 !important;
+  color: #000000 !important;
+  border-color: #eab308;
+}
+
 

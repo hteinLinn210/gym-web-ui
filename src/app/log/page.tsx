@@ -112,6 +112,9 @@ export default function LogPage() {
   const [isEditingTemplate, setIsEditingTemplate] = useState(false);
   const [templateExercises, setTemplateExercises] = useState<any[]>([]);
 
+  // Submitter action state (Save Draft vs Finish & Analyze)
+  const [submitStatus, setSubmitStatus] = useState<'draft' | 'completed'>('completed');
+
   // Fetch from Supabase templates or fallback
   useEffect(() => {
     async function loadTemplate() {
@@ -321,7 +324,8 @@ export default function LogPage() {
     });
 
     const payload = {
-      exercises: formattedExercises
+      exercises: formattedExercises,
+      status: submitStatus
     };
 
     // Construct custom date timestamp using logDate + current time
@@ -361,11 +365,15 @@ export default function LogPage() {
       }
 
       setStatusType('success');
-      setStatusMsg('Workout logged successfully! Sending data to subagents...');
+      if (submitStatus === 'draft') {
+        setStatusMsg('Workout progress saved as draft successfully!');
+      } else {
+        setStatusMsg('Workout logged successfully! Sending data to subagents...');
+      }
       
       setTimeout(() => {
         router.push('/');
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
       console.error('Submit error:', err);
       setStatusType('error');
@@ -701,26 +709,39 @@ export default function LogPage() {
             ))}
           </div>
 
-          {/* Status Messages */}
-          {statusMsg && (
-            <div className={`p-4 rounded-xl flex items-center gap-3 border ${
-              statusType === 'success' 
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-            }`}>
-              {statusType === 'success' ? <CheckCircle className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
-              <span className="text-xs font-medium leading-relaxed">{statusMsg}</span>
-            </div>
-          )}
+          {/* Sticky Submit & Save controls */}
+          <div className="sticky bottom-0 left-0 right-0 bg-zinc-950/80 backdrop-blur-md p-4 border-t border-white/10 -mx-4 -mb-10 pb-8 z-20 space-y-4">
+            {/* Status Messages */}
+            {statusMsg && (
+              <div className={`p-4 rounded-xl flex items-center gap-3 border ${
+                statusType === 'success' 
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                  : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+              }`}>
+                {statusType === 'success' ? <CheckCircle className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+                <span className="text-xs font-medium leading-relaxed">{statusMsg}</span>
+              </div>
+            )}
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold py-4 rounded-2xl shadow-lg hover:shadow-violet-500/20 transition-all active:scale-[0.99] disabled:opacity-50"
-          >
-            {loading ? 'Saving to Supabase...' : 'Submit Log & Trigger Agents'}
-          </button>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="submit"
+                disabled={loading}
+                onClick={() => setSubmitStatus('draft')}
+                className="flex items-center justify-center bg-zinc-900 border border-white/10 text-zinc-300 hover:bg-zinc-800 font-semibold py-4 rounded-2xl transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer text-sm"
+              >
+                {loading && submitStatus === 'draft' ? 'Saving Draft...' : 'Save Draft'}
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                onClick={() => setSubmitStatus('completed')}
+                className="flex items-center justify-center bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold py-4 rounded-2xl shadow-lg hover:shadow-violet-500/20 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer text-sm"
+              >
+                {loading && submitStatus === 'completed' ? 'Submitting...' : 'Finish & Analyze'}
+              </button>
+            </div>
+          </div>
         </form>
       )}
     </div>

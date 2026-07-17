@@ -11,6 +11,7 @@ interface WorkoutLog {
   timestamp: string;
   day_split: string;
   metrics: {
+    status?: string;
     exercises: Array<{
       name: string;
       sets?: Array<{ set: number; reps: number; weight: string }>;
@@ -150,7 +151,8 @@ export default function Home() {
     setIsSaving(true);
     try {
       const payload = {
-        exercises: editedLog.metrics.exercises
+        exercises: editedLog.metrics.exercises,
+        status: 'completed' // Saving the edited log marks it as completed
       };
 
       const { error } = await supabase
@@ -227,10 +229,10 @@ export default function Home() {
 
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-rose-400 to-amber-300 bg-clip-text text-transparent">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tighter text-zinc-100 uppercase">
           AESTHETIC MASTER PLAN
         </h1>
-        <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest font-mono">
+        <p className="text-[10px] text-zinc-500 mt-1.5 uppercase tracking-widest font-bold">
           Gym Automation System
         </p>
       </div>
@@ -304,7 +306,14 @@ export default function Home() {
               >
                 <div className="flex-grow">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="font-semibold text-zinc-100 text-sm">{log.day_split}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-zinc-100 text-sm">{log.day_split}</span>
+                      {log.metrics.status === 'draft' && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
+                          Draft
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[10px] font-mono text-zinc-500">
                       {new Date(log.timestamp).toLocaleDateString()}
                     </span>
