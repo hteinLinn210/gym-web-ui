@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090b; /* Zinc 950 */
+  --foreground: #fafafa; /* Zinc 50 */
+  --card-bg: rgba(18, 18, 24, 0.65);
+  --card-border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(120, 119, 198, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.06) 0px, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Light/Dark Theme Variable Definitions */
+[data-theme="light"] {
+  --background: #fdfdfd;
+  --foreground: #09090b;
+  --card-bg: rgba(244, 244, 245, 0.75);
+  --card-border: rgba(9, 9, 11, 0.06);
+}
+
+[data-theme="light"] body {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(120, 119, 198, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.03) 0px, transparent 50%);
+}
+
+/* Light mode overrides for Tailwind utility colors */
+[data-theme="light"] .glass {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .text-zinc-100 {
+  color: #18181b !important;
+}
+[data-theme="light"] .text-zinc-200 {
+  color: #27272a !important;
+}
+[data-theme="light"] .text-zinc-300 {
+  color: #3f3f46 !important;
+}
+[data-theme="light"] .text-zinc-400 {
+  color: #52525b !important;
+}
+[data-theme="light"] .text-zinc-500 {
+  color: #71717a !important;
+}
+[data-theme="light"] .text-zinc-600 {
+  color: #8c8c96 !important;
+}
+[data-theme="light"] .text-white {
+  color: #09090b !important;
+}
+
+[data-theme="light"] .bg-zinc-900 {
+  background-color: #f4f4f5 !important;
+}
+[data-theme="light"] .bg-zinc-950 {
+  background-color: #e4e4e7 !important;
+}
+[data-theme="light"] .bg-zinc-900\/30 {
+  background-color: rgba(244, 244, 245, 0.6) !important;
+}
+[data-theme="light"] .bg-zinc-900\/40 {
+  background-color: rgba(244, 244, 245, 0.75) !important;
+}
+[data-theme="light"] .bg-zinc-900\/50 {
+  background-color: rgba(244, 244, 245, 0.7) !important;
+}
+[data-theme="light"] .bg-zinc-950\/20 {
+  background-color: rgba(228, 228, 231, 0.4) !important;
+}
+[data-theme="light"] .bg-zinc-950\/40 {
+  background-color: rgba(228, 228, 231, 0.6) !important;
+}
+[data-theme="light"] .bg-zinc-950\/50 {
+  background-color: rgba(228, 228, 231, 0.7) !important;
+}
+[data-theme="light"] .bg-zinc-950\/60 {
+  background-color: rgba(228, 228, 231, 0.8) !important;
+}
+[data-theme="light"] .bg-black\/75 {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+[data-theme="light"] .border-white\/5 {
+  border-color: rgba(9, 9, 11, 0.05) !important;
+}
+[data-theme="light"] .border-white\/10 {
+  border-color: rgba(9, 9, 11, 0.08) !important;
+}
+[data-theme="light"] .border-white\/20 {
+  border-color: rgba(9, 9, 11, 0.15) !important;
+}
+
+[data-theme="light"] input, [data-theme="light"] select {
+  color: #18181b !important;
+  background-color: #f4f4f5 !important;
+  border-color: rgba(9, 9, 11, 0.1) !important;
+}
+[data-theme="light"] select option {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+}
+[data-theme="light"] .bg-gradient-to-r.from-violet-500.to-rose-500 {
+  color: #ffffff !important; /* Preserve white text inside buttons */
+}
+
