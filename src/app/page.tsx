@@ -230,7 +230,7 @@ export default function Home() {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tighter text-zinc-100 uppercase">
-          AESTHETIC MASTER PLAN
+          ERIK'S MASTER PLAN
         </h1>
         <p className="text-[10px] text-zinc-500 mt-1.5 uppercase tracking-widest font-bold">
           Gym Automation System
