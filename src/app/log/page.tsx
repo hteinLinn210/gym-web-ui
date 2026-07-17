@@ -599,14 +599,14 @@ export default function LogPage() {
           {/* Day Select & Datepicker */}
           <div className="glass rounded-2xl p-5 border border-white/5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              <div className="min-w-0">
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">
                   Select Workout Day
                 </label>
                 <select
                   value={day}
                   onChange={(e) => setDay(e.target.value)}
-                  className="w-full bg-zinc-900 border border-white/10 text-zinc-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                  className="w-full min-w-0 appearance-none bg-zinc-900 border border-white/10 text-zinc-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors"
                 >
                   {Object.keys(FALLBACK_SPLITS).map((key) => (
                     <option key={key} value={key}>
@@ -615,7 +615,7 @@ export default function LogPage() {
                   ))}
                 </select>
               </div>
-              <div>
+              <div className="min-w-0">
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2 flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-rose-400" />
                   Workout Date
@@ -624,7 +624,8 @@ export default function LogPage() {
                   type="date"
                   value={logDate}
                   onChange={(e) => setLogDate(e.target.value)}
-                  className="w-full bg-zinc-900 border border-white/10 text-zinc-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                  className="w-full min-w-0 appearance-none bg-zinc-900 border border-white/10 text-zinc-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                  style={{ WebkitAppearance: 'none' }}
                   required
                 />
               </div>
