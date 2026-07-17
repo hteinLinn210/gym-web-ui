@@ -115,6 +115,7 @@ export default function LogPage() {
 
   // Submitter action state (Save Draft vs Finish & Analyze)
   const [submitStatus, setSubmitStatus] = useState<'draft' | 'completed'>('completed');
+  const [currentLogId, setCurrentLogId] = useState<number | null>(null);
 
   // Fetch from Supabase templates or fallback
   useEffect(() => {
@@ -348,47 +349,84 @@ export default function LogPage() {
     const customTimestamp = new Date(`${logDate}T${now.toTimeString().split(' ')[0]}`).toISOString();
 
     try {
-      // 1. Insert to Supabase and get the ID
-      const { data: insertedLog, error } = await supabase
-        .from('workout_logs')
-        .insert([{
-          day_split: day,
-          timestamp: customTimestamp,
-          metrics: JSON.stringify(payload)
-        }])
-        .select('id')
-        .single();
+      let targetLogId = currentLogId;
 
-      if (error) throw error;
+      if (targetLogId) {
+        // Update existing log
+        const { error } = await supabase
+          .from('workout_logs')
+          .update({
+            metrics: JSON.stringify(payload)
+          })
+          .eq('id', targetLogId);
 
-      // 2. Insert to local SQLite database with same ID
-      const localRes = await fetch('/api/logs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: insertedLog.id,
-          day_split: day,
-          timestamp: customTimestamp,
-          metrics: payload
-        })
-      });
+        if (error) throw error;
 
-      if (!localRes.ok) {
-        console.error('Failed to sync log to local SQLite database');
+        // Sync update locally
+        const localRes = await fetch(`/api/logs/${targetLogId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            day_split: day,
+            timestamp: customTimestamp,
+            metrics: payload
+          })
+        });
+
+        if (!localRes.ok) {
+          console.error('Failed to sync log update to local SQLite database');
+        }
+      } else {
+        // Insert new log
+        const { data: insertedLog, error } = await supabase
+          .from('workout_logs')
+          .insert([{
+            day_split: day,
+            timestamp: customTimestamp,
+            metrics: JSON.stringify(payload)
+          }])
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        targetLogId = insertedLog.id;
+        setCurrentLogId(targetLogId);
+
+        // Sync insert locally
+        const localRes = await fetch('/api/logs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: targetLogId,
+            day_split: day,
+            timestamp: customTimestamp,
+            metrics: payload
+          })
+        });
+
+        if (!localRes.ok) {
+          console.error('Failed to sync log to local SQLite database');
+        }
       }
 
       setStatusType('success');
       if (submitStatus === 'draft') {
         setStatusMsg('Workout progress saved as draft successfully!');
+        // Clear message after 3 seconds, do not redirect!
+        setTimeout(() => {
+          setStatusMsg('');
+          setStatusType('');
+        }, 3000);
       } else {
         setStatusMsg('Workout logged successfully! Sending data to subagents...');
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
       }
-      
-      setTimeout(() => {
-        router.push('/');
-      }, 1500);
     } catch (err: any) {
       console.error('Submit error:', err);
       setStatusType('error');
