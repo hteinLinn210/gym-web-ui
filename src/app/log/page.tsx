@@ -153,11 +153,16 @@ export default function LogPage() {
         reps: ex.reps ? (ex.reps.includes('-') ? ex.reps.split('-')[0] : ex.reps) : '10',
         weight: '0' // Default added weight to 0
       }));
+      
+      const nameLower = ex.name.toLowerCase();
+      const isDoubleDefault = nameLower.includes('plate-loaded') || nameLower.includes('hack squat') || nameLower.includes('leg press');
+
       return {
         name: ex.name,
         sets: setsData,
         duration: ex.duration || '',
-        initialWeight: ex.weight ? ex.weight.replace('kg', '') : '0'
+        initialWeight: ex.weight ? ex.weight.replace('kg', '') : '0',
+        loadType: isDoubleDefault ? 'double' : 'single'
       };
     });
     setExercises(initialized);
@@ -316,12 +321,13 @@ export default function LogPage() {
       }
       
       const baseWeight = parseFloat(ex.initialWeight) || 0;
+      const isDouble = ex.loadType === 'double';
       
       return {
         name: ex.name,
         sets: ex.sets.map((s: any) => {
           const addedWeight = parseFloat(s.weight) || 0;
-          const totalWeight = baseWeight + addedWeight;
+          const totalWeight = baseWeight + (addedWeight * (isDouble ? 2 : 1));
           return {
             set: s.setNum,
             reps: parseInt(s.reps) || 0,
@@ -634,10 +640,44 @@ export default function LogPage() {
           <div className="space-y-4">
             {exercises.map((ex, exIdx) => (
               <div key={ex.name} className="glass rounded-2xl p-5 border border-white/5 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
-                  <h3 className="font-bold text-zinc-100 text-sm leading-tight">{ex.name}</h3>
+                <div className="border-b border-white/5 pb-3">
+                  <h3 className="font-bold text-zinc-100 text-sm leading-tight mb-3">{ex.name}</h3>
                   {!ex.duration && (
-                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {/* Load Type Segmented Toggle */}
+                      <div className="flex bg-zinc-950/60 rounded-lg p-0.5 border border-white/5 items-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...exercises];
+                            updated[exIdx].loadType = 'single';
+                            setExercises(updated);
+                          }}
+                          className={`text-[9px] font-bold px-2 py-1 rounded-md uppercase tracking-wider transition-colors cursor-pointer ${
+                            ex.loadType !== 'double' 
+                              ? 'bg-zinc-800 text-zinc-100' 
+                              : 'text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          Stack
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...exercises];
+                            updated[exIdx].loadType = 'double';
+                            setExercises(updated);
+                          }}
+                          className={`text-[9px] font-bold px-2 py-1 rounded-md uppercase tracking-wider transition-colors cursor-pointer ${
+                            ex.loadType === 'double' 
+                              ? 'bg-zinc-800 text-zinc-100' 
+                              : 'text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          2-Sides
+                        </button>
+                      </div>
+
                       {/* Initial Machine/Bar Base Weight */}
                       <div className="flex items-center gap-1.5 bg-zinc-950/60 rounded-lg px-2 border border-white/5 py-1">
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Base:</span>
@@ -659,7 +699,7 @@ export default function LogPage() {
                       <button
                         type="button"
                         onClick={() => addSet(exIdx)}
-                        className="flex items-center gap-1 text-[11px] font-semibold bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                        className="flex items-center gap-1 text-[11px] font-semibold bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ml-auto sm:ml-0"
                       >
                         <Plus className="w-3.5 h-3.5" /> Add Set
                       </button>
@@ -711,13 +751,16 @@ export default function LogPage() {
                             <input
                               type="number"
                               step="any"
-                              placeholder="Plates"
+                              placeholder={ex.loadType === 'double' ? "Per Side" : "Plates"}
                               value={set.weight}
                               onChange={(e) => handleSetChange(exIdx, setIdx, 'weight', e.target.value)}
                               className="w-full bg-transparent border-none text-zinc-200 text-xs py-1.5 focus:outline-none text-center font-semibold"
                               required
                               title="Weight added to base weight"
                             />
+                            {ex.loadType === 'double' && (
+                              <span className="text-[10px] font-bold text-amber-500/80 pr-1 select-none">×2</span>
+                            )}
                             <span className="text-[10px] font-bold text-zinc-600 uppercase pr-1">KG</span>
                           </div>
                         </div>
