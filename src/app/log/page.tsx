@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, CheckCircle, AlertCircle, Calendar, Edit3, Save, X, Check } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, CheckCircle, AlertCircle, Calendar, Edit3, Save, X, Check, Dumbbell } from 'lucide-react';
 
 interface ExerciseTemplate {
   name: string;
@@ -116,6 +116,42 @@ export default function LogPage() {
   // Submitter action state (Save Draft vs Finish & Analyze)
   const [submitStatus, setSubmitStatus] = useState<'draft' | 'completed'>('completed');
   const [currentLogId, setCurrentLogId] = useState<number | null>(null);
+
+  // Auth states
+  const [isOwner, setIsOwner] = useState<boolean | null>(null);
+  const [passcode, setPasscode] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+
+  useEffect(() => {
+    const savedOwner = localStorage.getItem('isOwner') === 'true';
+    setIsOwner(savedOwner);
+  }, []);
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: passcode })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsOwner(true);
+        localStorage.setItem('isOwner', 'true');
+        localStorage.setItem('ownerKey', passcode);
+      } else {
+        setAuthError(data.error || 'Incorrect passcode');
+      }
+    } catch (err) {
+      setAuthError('Authentication failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   // Fetch from Supabase templates or fallback
   useEffect(() => {
@@ -434,6 +470,67 @@ export default function LogPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isOwner === null) {
+    return (
+      <div className="flex-grow flex items-center justify-center p-4">
+        <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isOwner) {
+    return (
+      <div className="flex-grow flex items-center justify-center p-4 max-w-lg mx-auto w-full min-h-screen">
+        <div className="glass rounded-3xl w-full p-8 border border-white/10 text-center space-y-6 animate-scale-in">
+          <div className="bg-amber-500/10 w-14 h-14 rounded-full flex items-center justify-center mx-auto text-amber-500 border border-amber-500/25">
+            <Dumbbell className="w-7 h-7" />
+          </div>
+
+          <div>
+            <h1 className="text-xl font-bold text-zinc-100 uppercase tracking-tighter">Owner Key Required</h1>
+            <p className="text-xs text-zinc-400 mt-2 leading-relaxed max-w-xs mx-auto">
+              This logger is restricted to the plan owner. Please authenticate with your passcode to log workout metrics.
+            </p>
+          </div>
+
+          <form onSubmit={handleAuthSubmit} className="space-y-4 pt-2">
+            <div>
+              <input
+                type="password"
+                placeholder="Passcode"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                className="w-full bg-zinc-950/60 border border-white/10 text-zinc-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 font-mono text-center tracking-widest"
+                autoFocus
+                required
+              />
+            </div>
+
+            {authError && (
+              <p className="text-rose-400 text-xs font-semibold">{authError}</p>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <Link
+                href="/"
+                className="flex-grow bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-zinc-300 font-semibold py-3 px-4 text-xs rounded-xl transition-all text-center cursor-pointer"
+              >
+                Back to Dashboard
+              </Link>
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="flex-grow bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold py-3 px-4 text-xs rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              >
+                {authLoading ? 'Verifying...' : 'Unlock Logger'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -38,6 +38,13 @@ export default function Home() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [mounted, setMounted] = useState(false);
 
+  // Auth states
+  const [isOwner, setIsOwner] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [passcode, setPasscode] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
@@ -47,6 +54,10 @@ export default function Home() {
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
     }
+
+    // Check owner auth
+    const savedOwner = localStorage.getItem('isOwner') === 'true';
+    setIsOwner(savedOwner);
   }, []);
 
   const toggleTheme = () => {
@@ -54,6 +65,39 @@ export default function Home() {
     setTheme(nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
     localStorage.setItem('theme', nextTheme);
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: passcode })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsOwner(true);
+        localStorage.setItem('isOwner', 'true');
+        localStorage.setItem('ownerKey', passcode);
+        setShowAuthModal(false);
+        setPasscode('');
+      } else {
+        setAuthError(data.error || 'Incorrect passcode');
+      }
+    } catch (err) {
+      setAuthError('Authentication request failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = () => {
+    setIsOwner(false);
+    localStorage.removeItem('isOwner');
+    localStorage.removeItem('ownerKey');
   };
 
   // Fetch logs
@@ -211,11 +255,37 @@ export default function Home() {
         />
       </div>
 
-      {/* Theme Toggle Controls */}
-      <div className="w-full flex justify-end mb-4 relative z-10">
+      {/* Top Bar Controls */}
+      <div className="w-full flex justify-between items-center mb-4 relative z-10 animate-fade-in-up">
+        {/* Owner Lock Indicator */}
+        {mounted && (
+          <button
+            onClick={isOwner ? handleSignOut : () => { setShowAuthModal(true); setAuthError(''); }}
+            className={`glass rounded-xl px-3 py-2 flex items-center gap-2 border transition-all text-[10px] font-bold uppercase tracking-wider cursor-pointer select-none ${
+              isOwner 
+                ? 'border-emerald-500/25 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500/10' 
+                : 'border-white/10 text-zinc-400 hover:text-zinc-100 hover:bg-white/5'
+            }`}
+            title={isOwner ? 'Sign out of Owner Mode' : 'Authenticate as Owner'}
+          >
+            {isOwner ? (
+              <>
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                <span>Owner Mode</span>
+              </>
+            ) : (
+              <>
+                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                <span>Showcase Mode</span>
+              </>
+            )}
+          </button>
+        )}
+
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="glass rounded-xl p-2.5 text-zinc-400 hover:text-zinc-100 transition-colors flex items-center gap-2 border border-white/10 shadow-sm"
+          className="glass rounded-xl p-2.5 text-zinc-400 hover:text-zinc-100 transition-colors flex items-center gap-2 border border-white/10 shadow-sm cursor-pointer"
           title={mounted ? `Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode` : 'Switch Theme'}
         >
           {mounted && theme === 'light' ? (
@@ -252,13 +322,23 @@ export default function Home() {
           Completed a session? Log your sets, reps, and weights to trigger the subagent analysis pipeline instantly.
         </p>
 
-        <Link
-          href="/log"
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-lg hover:shadow-violet-500/20 transition-all active:scale-[0.98] glass-hover"
-        >
-          <Flame className="w-5 h-5 fill-current" />
-          Log Today's Workout
-        </Link>
+        {isOwner ? (
+          <Link
+            href="/log"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-lg hover:shadow-violet-500/20 transition-all active:scale-[0.98] glass-hover cursor-pointer"
+          >
+            <Flame className="w-5 h-5 fill-current" />
+            Log Today's Workout
+          </Link>
+        ) : (
+          <button
+            onClick={() => { setShowAuthModal(true); setAuthError(''); }}
+            className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-zinc-300 font-semibold py-3.5 px-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <Flame className="w-5 h-5 fill-current" />
+            Unlock Logger (Owner Mode)
+          </button>
+        )}
       </div>
 
       {/* System Status */}
@@ -627,34 +707,87 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => handleDeleteLog(selectedLog.id)}
-                    className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-semibold p-2.5 rounded-xl text-xs transition-all flex items-center justify-center"
-                    title="Delete Session"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  {activeTab === 'exercises' && (
-                    <button
-                      onClick={() => {
-                        setEditedLog(JSON.parse(JSON.stringify(selectedLog)));
-                        setIsEditing(true);
-                      }}
-                      className="bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 text-violet-400 font-semibold p-2.5 rounded-xl text-xs transition-all flex items-center justify-center"
-                      title="Edit Session"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
+                  {isOwner ? (
+                    <>
+                      <button
+                        onClick={() => handleDeleteLog(selectedLog.id)}
+                        className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-semibold p-2.5 rounded-xl text-xs transition-all flex items-center justify-center cursor-pointer"
+                        title="Delete Session"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      {activeTab === 'exercises' && (
+                        <button
+                          onClick={() => {
+                            setEditedLog(JSON.parse(JSON.stringify(selectedLog)));
+                            setIsEditing(true);
+                          }}
+                          className="bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 text-violet-400 font-semibold p-2.5 rounded-xl text-xs transition-all flex items-center justify-center cursor-pointer"
+                          title="Edit Session"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex items-center px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-[9px] font-bold text-zinc-500 uppercase tracking-wider select-none">
+                      Read-Only Mode
+                    </div>
                   )}
                   <button
                     onClick={() => { setSelectedLog(null); setIsEditing(false); }}
-                    className="flex-grow bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-zinc-300 font-semibold py-2.5 px-4 text-xs rounded-xl transition-all text-center"
+                    className="flex-grow bg-zinc-900 border border-white/10 hover:bg-zinc-800 text-zinc-300 font-semibold py-2.5 px-4 text-xs rounded-xl transition-all text-center cursor-pointer"
                   >
                     Close
                   </button>
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Passcode Authentication Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="glass rounded-3xl w-full max-w-sm p-6 border border-white/10 relative animate-scale-in">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 bg-white/5 hover:bg-white/10 p-2 rounded-xl text-zinc-400 hover:text-zinc-100 transition-all cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="font-bold text-zinc-100 text-base mb-2">Owner Authentication</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+              Enter your passcode to unlock workout logging, editing, and deleting capabilities.
+            </p>
+
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="password"
+                  placeholder="Passcode"
+                  value={passcode}
+                  onChange={(e) => setPasscode(e.target.value)}
+                  className="w-full bg-zinc-950/60 border border-white/10 text-zinc-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 font-mono text-center tracking-widest"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              {authError && (
+                <p className="text-rose-400 text-[11px] font-semibold text-center">{authError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold py-3 px-4 text-xs rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              >
+                {authLoading ? 'Verifying...' : 'Unlock Owner Mode'}
+              </button>
+            </form>
           </div>
         </div>
       )}
