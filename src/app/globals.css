@@ -75,6 +75,11 @@ body {
   color: #0c0c0e !important;
 }
 
+[data-theme="light"] .bg-zinc-800 {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
 [data-theme="light"] .bg-zinc-900 {
   background-color: #f4f4f0 !important;
 }
