@@ -1,36 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Erik's Master Plan - Gym Automation System
 
-## Getting Started
+A premium, automated gym workout logger and progressive overload tracking application custom-tailored for the **12-Week Aesthetic Master Plan**.
 
-First, run the development server:
+## Core Features
+*   **⚖️ Base & Plates Load Separation**: Custom input controls separating machine base weights from loaded plates. Automatically calculates double-load multipliers for two-sided plate-loaded machines.
+*   **🤖 AI-Powered Subagent Analysis**: Completing a workout triggers a parallel Multi-Agent analysis pipeline:
+    *   **Kinesiologist Agent**: Computes total session work capacity (volume), reviews progressive overload achievements, and schedules next week's double progression checklist.
+    *   **Nutritionist Agent**: Provides targeted macronutrient, hydration, and timing advice based on the specific muscle groups trained.
+    *   **Hype-Man Agent**: Delivers high-energy motivational callouts.
+*   **🔒 Showcase & Owner Modes**: Supports a read-only **Showcase Mode** allowing visitors to view logged workouts and AI reports, while locking workout logging, edits, and deletions behind a secure, passcode-locked **Owner Mode** (verified via Next.js API routes).
+*   **💾 Persistent Drafts**: Seamlessly save drafts during your gym session without redirecting, automatically updating the active draft record in the background.
+*   **🎨 Premium Neue Montreal Aesthetics**: A clean editorial design featuring a glassmorphic layout, a responsive mobile layout, custom load transitions, and a **WebGL SideRays** volumetric lighting background shader.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+*   **Frontend**: Next.js 16 (App Router), React 19, TailwindCSS, Lucide Icons, OGL (WebGL)
+*   **Database**: Supabase (Cloud PostgreSQL) & Node SQLite (Local Synchronization)
+*   **Integration**: Model Context Protocol (MCP) Server for agentic automation
