@@ -102,6 +102,7 @@ export default function LogPage() {
   const [day, setDay] = useState('Day 1');
   const [splitName, setSplitName] = useState('');
   const [exercises, setExercises] = useState<any[]>([]);
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [statusType, setStatusType] = useState<'success' | 'error' | ''>('');
@@ -195,10 +196,18 @@ export default function LogPage() {
       const nameLower = ex.name.toLowerCase();
       const isDoubleDefault = nameLower.includes('plate-loaded') || nameLower.includes('hack squat') || nameLower.includes('leg press');
 
+      const isCardio = ex.duration !== undefined;
+      let durationNum = '';
+      if (isCardio && ex.duration) {
+        const match = ex.duration.match(/\d+/);
+        durationNum = match ? match[0] : '';
+      }
+
       return {
         name: ex.name,
         sets: setsData,
-        duration: ex.duration || '',
+        duration: durationNum,
+        isCardio: isCardio,
         initialWeight: ex.weight ? ex.weight.replace('kg', '') : '0',
         loadType: isDoubleDefault ? 'double' : 'single'
       };
@@ -350,10 +359,10 @@ export default function LogPage() {
 
     // Format metrics payload
     const formattedExercises = exercises.map(ex => {
-      if (ex.duration) {
+      if (ex.isCardio) {
         return {
           name: ex.name,
-          duration: ex.duration,
+          duration: ex.duration ? `${ex.duration} mins` : 'skipped',
           status: 'completed'
         };
       }
@@ -377,7 +386,8 @@ export default function LogPage() {
 
     const payload = {
       exercises: formattedExercises,
-      status: submitStatus
+      status: submitStatus,
+      notes: notes
     };
 
     // Construct custom date timestamp using logDate + current time
@@ -827,6 +837,7 @@ export default function LogPage() {
                             updated[exIdx].initialWeight = e.target.value;
                             setExercises(updated);
                           }}
+                          onFocus={(e) => e.target.select()}
                           className="w-10 bg-transparent border-none text-zinc-200 text-xs focus:outline-none text-center font-bold"
                           title="Base carriage/bar weight of this exercise/machine"
                         />
@@ -844,19 +855,21 @@ export default function LogPage() {
                   )}
                 </div>
 
-                {ex.duration ? (
+                {ex.isCardio ? (
                   /* Cardio/Duration inputs */
                   <div className="flex gap-4">
                     <div className="flex-grow">
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Duration</label>
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Duration (Minutes)</label>
                       <input
-                        type="text"
+                        type="number"
+                        placeholder="Minutes"
                         value={ex.duration}
                         onChange={(e) => {
                           const updated = [...exercises];
                           updated[exIdx].duration = e.target.value;
                           setExercises(updated);
                         }}
+                        onFocus={(e) => e.target.select()}
                         className="w-full bg-zinc-900/50 border border-white/10 text-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-violet-500"
                       />
                     </div>
@@ -877,6 +890,7 @@ export default function LogPage() {
                               placeholder="Reps"
                               value={set.reps}
                               onChange={(e) => handleSetChange(exIdx, setIdx, 'reps', e.target.value)}
+                              onFocus={(e) => e.target.select()}
                               className="w-full bg-transparent border-none text-zinc-200 text-xs py-1.5 focus:outline-none text-center"
                               required
                             />
@@ -891,6 +905,7 @@ export default function LogPage() {
                               placeholder={ex.loadType === 'double' ? "Per Side" : "Plates"}
                               value={set.weight}
                               onChange={(e) => handleSetChange(exIdx, setIdx, 'weight', e.target.value)}
+                              onFocus={(e) => e.target.select()}
                               className="w-full bg-transparent border-none text-zinc-200 text-xs py-1.5 focus:outline-none text-center font-semibold"
                               required
                               title="Weight added to base weight"
@@ -906,7 +921,7 @@ export default function LogPage() {
                           <button
                             type="button"
                             onClick={() => removeSet(exIdx, setIdx)}
-                            className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors"
+                            className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -917,6 +932,20 @@ export default function LogPage() {
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Workout Notes */}
+          <div className="glass rounded-2xl p-5 border border-white/5 space-y-2">
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+              Workout Notes
+            </label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="How did the workout feel? Any substitutions or energy levels to note?"
+              className="w-full min-h-[80px] bg-zinc-900 border border-white/10 text-zinc-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors resize-none"
+              onFocus={(e) => e.target.select()}
+            />
           </div>
 
           {/* Sticky Submit & Save controls */}

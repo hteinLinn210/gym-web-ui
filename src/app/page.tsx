@@ -12,6 +12,7 @@ interface WorkoutLog {
   day_split: string;
   metrics: {
     status?: string;
+    notes?: string;
     exercises: Array<{
       name: string;
       sets?: Array<{ set: number; reps: number; weight: string }>;
@@ -196,7 +197,8 @@ export default function Home() {
     try {
       const payload = {
         exercises: editedLog.metrics.exercises,
-        status: 'completed' // Saving the edited log marks it as completed
+        status: 'completed', // Saving the edited log marks it as completed
+        notes: editedLog.metrics.notes
       };
 
       const { error } = await supabase
@@ -553,15 +555,17 @@ export default function Home() {
 
                         {ex.duration ? (
                           <div className="flex flex-col gap-1">
-                            <label className="text-[9px] font-bold text-zinc-500 uppercase">Duration</label>
+                            <label className="text-[9px] font-bold text-zinc-500 uppercase">Duration (Minutes)</label>
                             <input
-                              type="text"
-                              value={ex.duration}
+                              type="number"
+                              value={ex.duration ? ex.duration.replace(' mins', '').replace('Minutes', '').trim() : ''}
                               onChange={(e) => {
                                 const updated = { ...editedLog };
-                                updated.metrics.exercises[exIdx].duration = e.target.value;
+                                updated.metrics.exercises[exIdx].duration = e.target.value ? `${e.target.value} mins` : '';
                                 setEditedLog(updated);
                               }}
+                              onFocus={(e) => e.target.select()}
+                              placeholder="Minutes"
                               className="w-full bg-zinc-950/60 border border-white/10 text-zinc-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-violet-500"
                             />
                           </div>
@@ -582,19 +586,22 @@ export default function Home() {
                                         updated.metrics.exercises[exIdx].sets![setIdx].reps = parseInt(e.target.value) || 0;
                                         setEditedLog(updated);
                                       }}
+                                      onFocus={(e) => e.target.select()}
                                       className="w-full bg-transparent border-none text-zinc-200 text-xs py-1 focus:outline-none text-center"
                                     />
                                     <span className="text-[9px] font-bold text-zinc-600 uppercase pr-0.5">Reps</span>
                                   </div>
                                   <div className="flex items-center bg-zinc-950/60 rounded-lg px-2 border border-white/5">
                                     <input
-                                      type="text"
-                                      value={s.weight.replace('kg', '')}
+                                      type="number"
+                                      step="any"
+                                      value={s.weight ? s.weight.replace('kg', '') : ''}
                                       onChange={(e) => {
                                         const updated = { ...editedLog };
                                         updated.metrics.exercises[exIdx].sets![setIdx].weight = `${e.target.value}kg`;
                                         setEditedLog(updated);
                                       }}
+                                      onFocus={(e) => e.target.select()}
                                       className="w-full bg-transparent border-none text-zinc-200 text-xs py-1 focus:outline-none text-center"
                                     />
                                     <span className="text-[9px] font-bold text-zinc-600 uppercase pr-0.5">KG</span>
@@ -611,7 +618,7 @@ export default function Home() {
                                       });
                                       setEditedLog(updated);
                                     }}
-                                    className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors"
+                                    className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors cursor-pointer"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
@@ -622,6 +629,24 @@ export default function Home() {
                         )}
                       </div>
                     ))}
+
+                    {/* Notes Edit Field */}
+                    <div className="bg-zinc-900/40 border border-white/10 p-4 rounded-2xl space-y-2">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                        Workout Notes
+                      </label>
+                      <textarea
+                        value={editedLog.metrics.notes || ''}
+                        onChange={(e) => {
+                          const updated = { ...editedLog };
+                          updated.metrics.notes = e.target.value;
+                          setEditedLog(updated);
+                        }}
+                        placeholder="Workout notes..."
+                        className="w-full min-h-[80px] bg-zinc-950/60 border border-white/10 text-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-violet-500 resize-none"
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -647,6 +672,16 @@ export default function Home() {
                         )}
                       </div>
                     ))}
+                    {selectedLog.metrics.notes && (
+                      <div className="bg-zinc-900/30 border border-white/5 p-4 rounded-2xl space-y-1">
+                        <h4 className="font-bold text-zinc-400 text-[10px] uppercase tracking-wider">
+                          Workout Notes
+                        </h4>
+                        <p className="text-xs text-zinc-300 leading-relaxed font-sans whitespace-pre-wrap">
+                          {selectedLog.metrics.notes}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )
               )}
